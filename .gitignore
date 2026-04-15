@@ -1,0 +1,25 @@
+# Build output
+bin/
+obj/
+
+# IDE & tools
+.vs/
+.vscode/
+*.user
+*.suo
+*.DotSettings
+
+# Claude Code settings (lokaal, niet delen)
+.claude/
+
+# NuGet
+*.nupkg
+packages/
+
+# Logs & instellingen (worden lokaal aangemaakt)
+*.log
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
