@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ClipboardImageSaver</RootNamespace>
+    <AssemblyName>ClipboardImageSaver</AssemblyName>
+    <Version>1.0.0</Version>
+    <Product>Clipboard Image Saver</Product>
+    <Description>Sla clipboard-afbeeldingen op als PNG in de actieve Explorer-map via Ctrl+Alt+V</Description>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <!-- Suppress single-file deployment warning for self-contained builds -->
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Microsoft.CSharp is needed for `dynamic` COM interop with Shell.Application.
+      In most .NET 8 WinForms projects it is already transitively included,
+      but listed explicitly here to guarantee availability.
+    -->
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+
+</Project>
