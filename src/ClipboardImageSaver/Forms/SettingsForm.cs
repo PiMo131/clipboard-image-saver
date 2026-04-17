@@ -15,13 +15,14 @@ public sealed class SettingsForm : Form
     private AppSettings _settings;
 
     // ── Controls ──────────────────────────────────────────────────────────────
-    private TextBox _txtFallbackFolder = null!;
-    private Button  _btnBrowse         = null!;
-    private TextBox _txtFileNamePrefix  = null!;
+    private TextBox  _txtFallbackFolder    = null!;
+    private Button   _btnBrowse            = null!;
+    private TextBox  _txtFileNamePrefix    = null!;
     private CheckBox _chkShowNotifications = null!;
     private CheckBox _chkOpenAfterSave     = null!;
-    private Button  _btnSave           = null!;
-    private Button  _btnCancel         = null!;
+    private CheckBox _chkStartWithWindows  = null!;
+    private Button   _btnSave              = null!;
+    private Button   _btnCancel            = null!;
 
     // ── Constructeur ──────────────────────────────────────────────────────────
     public SettingsForm(SettingsService settingsService)
@@ -39,7 +40,7 @@ public sealed class SettingsForm : Form
         SuspendLayout();
 
         Text = "ClipboardImageSaver — Instellingen";
-        ClientSize = new Size(490, 255);
+        ClientSize = new Size(490, 280);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
@@ -94,15 +95,23 @@ public sealed class SettingsForm : Form
             AutoSize = false
         };
 
+        _chkStartWithWindows = new CheckBox
+        {
+            Text = "Automatisch starten bij aanmelden bij Windows",
+            Location = new Point(12, 183),
+            Size = new Size(350, 20),
+            AutoSize = false
+        };
+
         // ── Versieregel ───────────────────────────────────────────────────
         var lblVersion = Label("v1.0.0  ·  Hotkey: Ctrl+Alt+V  ·  %AppData%\\ClipboardImageSaver",
-            new Point(12, 198), foreColor: SystemColors.GrayText, fontSize: 8f);
+            new Point(12, 218), foreColor: SystemColors.GrayText, fontSize: 8f);
 
         // ── Knoppen ───────────────────────────────────────────────────────
         _btnSave = new Button
         {
             Text = "Opslaan",
-            Location = new Point(295, 215),
+            Location = new Point(295, 238),
             Size = new Size(85, 28),
             DialogResult = DialogResult.OK
         };
@@ -111,7 +120,7 @@ public sealed class SettingsForm : Form
         _btnCancel = new Button
         {
             Text = "Annuleren",
-            Location = new Point(386, 215),
+            Location = new Point(386, 238),
             Size = new Size(88, 28),
             DialogResult = DialogResult.Cancel
         };
@@ -122,7 +131,7 @@ public sealed class SettingsForm : Form
         Controls.AddRange([
             lblFallback, _txtFallbackFolder, _btnBrowse,
             lblPrefix, _txtFileNamePrefix, lblPrefixHint,
-            _chkShowNotifications, _chkOpenAfterSave,
+            _chkShowNotifications, _chkOpenAfterSave, _chkStartWithWindows,
             lblVersion, _btnSave, _btnCancel
         ]);
 
@@ -147,10 +156,12 @@ public sealed class SettingsForm : Form
     // ── Data binding ──────────────────────────────────────────────────────────
     private void PopulateControls()
     {
-        _txtFallbackFolder.Text     = _settings.FallbackFolder;
-        _txtFileNamePrefix.Text     = _settings.FileNamePrefix;
+        _txtFallbackFolder.Text       = _settings.FallbackFolder;
+        _txtFileNamePrefix.Text       = _settings.FileNamePrefix;
         _chkShowNotifications.Checked = _settings.ShowNotifications;
-        _chkOpenAfterSave.Checked   = _settings.OpenAfterSave;
+        _chkOpenAfterSave.Checked     = _settings.OpenAfterSave;
+        // Lees de werkelijke registerwaarde (niet de gecachte instelling)
+        _chkStartWithWindows.Checked  = StartupService.IsEnabled();
     }
 
     // ── Event handlers ────────────────────────────────────────────────────────
@@ -177,12 +188,12 @@ public sealed class SettingsForm : Form
         _settings.FileNamePrefix    = _txtFileNamePrefix.Text.Trim();
         _settings.ShowNotifications = _chkShowNotifications.Checked;
         _settings.OpenAfterSave     = _chkOpenAfterSave.Checked;
+        _settings.StartWithWindows  = _chkStartWithWindows.Checked;
 
         try
         {
             _settingsService.Save(_settings);
-            // DialogResult = OK is al gezet via Button.DialogResult;
-            // venster sluit automatisch na succes.
+            ApplyStartupSetting(_settings.StartWithWindows);
         }
         catch (Exception ex)
         {
@@ -192,6 +203,23 @@ public sealed class SettingsForm : Form
                 "Opslaan mislukt",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
+        }
+    }
+
+    private static void ApplyStartupSetting(bool enable)
+    {
+        try
+        {
+            if (enable) StartupService.Enable();
+            else        StartupService.Disable();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Kon autostart niet {(enable ? "inschakelen" : "uitschakelen")}:\n\n{ex.Message}",
+                "Register-fout",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
         }
     }
 

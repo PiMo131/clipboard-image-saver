@@ -25,6 +25,11 @@ public sealed class AppSettings
     /// </summary>
     public bool OpenAfterSave { get; set; } = false;
 
+    /// <summary>
+    /// Start de applicatie automatisch bij het aanmelden bij Windows.
+    /// </summary>
+    public bool StartWithWindows { get; set; } = false;
+
     private static string DefaultFallbackFolder()
         => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
 }
